@@ -18,7 +18,7 @@ jv_pool_t *jv_pool_create(size_t size) {
     size = JV_ALLOC_DEFAULT_SIZE;
   }
 
-  size = jv_align(size, JV_WORD_SIZE/8);
+  size = jv_align(size, JV_WORD_SIZE / 8);
 
   cp = malloc(size + sizeof(jv_block_t) + sizeof(jv_pool_t) + sizeof(jv_lump_t));
   if (cp == NULL) {
@@ -58,7 +58,7 @@ static void *jv_pool_slb(jv_pool_t *pool, size_t size) {
   if (size <= pool->max) { /* 从 lump->size <= pool->max 中查找 */
     jv_lump_t *p;
     /* jv_uint_t i; */
-    size = jv_align(size, JV_WORD_SIZE/8);
+    size = jv_align(size, JV_WORD_SIZE / 8);
 
     /*for (p = pool->pos, i = 0; i == 0 || p != pool->pos; i++, p = p->next) { */
     p = pool->pos;
@@ -116,6 +116,42 @@ void *jv_pool_alloc(jv_pool_t *pool, size_t size) {
     jv_memzero(v, size);
   }
   return v;
+}
+
+size_t jv_pool_sizeof(jv_pool_t *pool, void *ptr) {
+  jv_lump_t *lump;
+
+  if (jv_pool_exist(pool, ptr) == JV_ERROR) {
+    return 0;
+  }
+
+  lump = (jv_lump_t *) ((u_char *) ptr - sizeof(jv_lump_t));
+
+  if (lump->used != 1 && lump->size % (JV_WORD_SIZE / 8) != 0) {
+    printf("sizeof's pointer is not in the memory pool\n");
+    return 0;
+  }
+
+  return lump->size;
+}
+
+jv_int_t jv_pool_exist(jv_pool_t *pool, void *ptr) {
+  jv_lump_t *lump;
+  size_t l;
+
+  if (pool == NULL || ptr == NULL) {
+    return JV_ERROR;
+  }
+
+  l = sizeof(jv_lump_t);
+  lump = pool->lump;
+
+  do {
+    if ((u_char *) lump + l == (u_char *) ptr)
+      return JV_OK;
+    lump = lump->next;
+  } while (lump != pool->lump);
+  return JV_ERROR;
 }
 
 void *jv_pool_realloc(jv_pool_t *pool, void *ptr, size_t size) {
@@ -227,13 +263,13 @@ static void *jv_pool_alloc_large(jv_pool_t *pool, size_t size) {
 jv_int_t jv_pool_free(jv_pool_t *pool, void *ptr) {
   jv_lump_t *prior, *idle;
 
-  if (ptr == NULL || pool == NULL) {
-    return JV_OK;
+  if (jv_pool_exist(pool, ptr) == JV_ERROR) {
+    return JV_ERROR;
   }
 
   idle = (jv_lump_t *) ((u_char *) ptr - sizeof(jv_lump_t));
 
-  if (idle->used != 1 && idle->size % (JV_WORD_SIZE/8) != 0) {
+  if (idle->used != 1 && idle->size % (JV_WORD_SIZE / 8) != 0) {
     printf("free's pointer is not in the memory pool\n");
     return JV_ERROR;
   }

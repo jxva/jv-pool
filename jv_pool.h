@@ -67,6 +67,10 @@ void *jv_pool_realloc(jv_pool_t *pool, void *ptr, size_t size);
 
 jv_int_t jv_pool_free(jv_pool_t *pool, void *ptr);
 
+size_t jv_pool_sizeof(jv_pool_t *pool, void *ptr);
+
+jv_int_t jv_pool_exist(jv_pool_t *pool, void *ptr);
+
 jv_int_t jv_pool_recycle(jv_pool_t *pool, void *ptr);
 
 jv_int_t jv_pool_reset(jv_pool_t *pool);
