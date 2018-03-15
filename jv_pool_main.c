@@ -235,7 +235,7 @@ void test5(void) {
   assert(jv_pool_free(pool, jv_pool_alloc(pool, 10000)) == JV_OK);
   assert(jv_pool_free(pool, jv_pool_alloc(pool, 10000)) == JV_OK);
   assert(jv_pool_free(pool, jv_pool_alloc(pool, 324542)) == JV_OK);
-  assert(jv_pool_free(pool, jv_pool_alloc(pool, 0x1fffffff)) == JV_OK);
+  /*assert(jv_pool_free(pool, jv_pool_alloc(pool, 0x1fffffff)) == JV_OK);*/
   assert(jv_pool_free(pool, jv_pool_alloc(pool, 41233)) == JV_OK);
 
   /* jv_pool_alloc(pool, 0x1fffffff); */

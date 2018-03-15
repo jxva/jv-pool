@@ -32,10 +32,6 @@ typedef struct jv_lump_s jv_lump_t;
 
 #define jv_align(d, a) (((d) + (a - 1)) & ~(a - 1))
 
-#define JV_ALLOC_DEFAULT_SIZE 0x4000 /* 0x4000  = 1024 * 16 = 16384 */
-
-#define JV_ALLOC_MAX_SIZE ((2UL << (JV_WORD_SIZE - 1)) - 1) /* 32bit: (2<<31)-1 = 0x7fffffff=2147483647 64bit: 9223372036854775807 */
-
 struct jv_block_s {
   jv_block_t *next;
   size_t size;
@@ -44,8 +40,8 @@ struct jv_block_s {
 struct jv_lump_s {
   jv_lump_t *prev;
   jv_lump_t *next;
-  jv_uint_t size : JV_WORD_SIZE - 1; /* 32bit max value: (2<<31)-1 = 2147483647, 64bit max value:(2<<63)-1 */
-  jv_uint_t used : 1;
+  unsigned size : 31; /*JV_WORD_SIZE - 1*/ /* 32bit max value: (2<<31)-1 = 2147483647, 64bit max value:(2<<63)-1 */
+  unsigned used : 1;
 };
 
 struct jv_pool_s { 

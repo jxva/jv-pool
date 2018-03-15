@@ -1,5 +1,15 @@
 #include <jv_pool.h>
 
+#define JV_ALLOC_MIN_SIZE 256
+
+#define JV_ALLOC_DEFAULT_SIZE 0x4000 /* 0x4000  = 1024 * 16 = 16384 */
+
+/*((2UL << (JV_WORD_SIZE - 1)) - 1)*/
+/* 32bit: (2<<31)-1 = 0x7fffffff=2147483647 64bit: 9223372036854775807 */
+
+#define JV_ALLOC_MAX_SIZE ((2U << 31) - JV_ALLOC_MIN_SIZE)
+
+
 static void *jv_pool_slb(jv_pool_t *pool, size_t size);
 
 static void *jv_pool_alloc_block(jv_pool_t *pool, size_t size);
@@ -12,7 +22,7 @@ jv_pool_t *jv_pool_create(size_t size) {
   jv_lump_t *lump;
   u_char *cp;
 
-  if (size < JV_ALLOC_DEFAULT_SIZE) {
+  if (size <= JV_ALLOC_MIN_SIZE) {
     size = JV_ALLOC_DEFAULT_SIZE;
   }
 
@@ -140,7 +150,7 @@ jv_int_t jv_pool_exist(jv_pool_t *pool, void *ptr) {
     lump = lump->next;
   } while (lump != pool->lump);
 
- /* fprintf(stderr, "ptr not exist is memory pool\n"); */
+  /* fprintf(stderr, "ptr not exist is memory pool\n"); */
   return JV_ERROR;
 }
 
