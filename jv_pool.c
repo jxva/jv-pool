@@ -41,12 +41,6 @@ jv_pool_t *jv_pool_create(size_t size) {
 }
 
 static void *jv_pool_slb(jv_pool_t *pool, size_t size) {
-  if (size > JV_ALLOC_MAX_SIZE) {
-    return NULL;
-  }
-
-  size = jv_align(size, JV_WORD_SIZE / 8);
-
   if (size <= pool->max) {
     jv_lump_t *p;
 
@@ -83,9 +77,10 @@ static void *jv_pool_slb(jv_pool_t *pool, size_t size) {
     jv_block_t *block;
 
     for (block = pool->first; block != NULL; block = block->next) {
-      if (block->size > size) {
+      if (block->size >= size) {
         lump = (jv_lump_t *) ((u_char *) block + sizeof(jv_block_t));
         if (lump->used == 0 && (jv_uint_t)(size * 1.25 / lump->size) == 1) {
+          lump->size = block->size;
           lump->used = 1;
           return (void *) (lump + 1);
         }
@@ -97,6 +92,13 @@ static void *jv_pool_slb(jv_pool_t *pool, size_t size) {
 
 void *jv_pool_alloc(jv_pool_t *pool, size_t size) {
   void *v;
+
+  if (size > JV_ALLOC_MAX_SIZE) {
+    return NULL;
+  }
+
+  size = jv_align(size, JV_WORD_SIZE / 8);
+
   v = jv_pool_slb(pool, size);
   if (v != NULL) {
     jv_memzero(v, size);
@@ -132,13 +134,13 @@ jv_int_t jv_pool_exist(jv_pool_t *pool, void *ptr) {
   lump = pool->lump;
 
   do {
-    if ((u_char *) lump + l == (u_char *)ptr /*&& lump->size % (JV_WORD_SIZE / 8) != 0*/) {
+    if ((u_char *) lump + l == (u_char *) ptr /*&& lump->size % (JV_WORD_SIZE / 8) != 0*/) {
       return JV_OK;
     }
     lump = lump->next;
   } while (lump != pool->lump);
 
-  fprintf(stderr, "ptr not exist is memory pool\n");
+ /* fprintf(stderr, "ptr not exist is memory pool\n"); */
   return JV_ERROR;
 }
 
@@ -154,8 +156,9 @@ static void *jv_pool_alloc_block(jv_pool_t *pool, size_t size) {
   jv_lump_t *tail;
   u_char *cp;
 
-  if (size <= 0)
+  if (size <= 0) {
     return NULL;
+  }
 
   cp = malloc(pool->max + sizeof(jv_block_t) + sizeof(jv_lump_t));
   if (cp == NULL) {
