@@ -317,29 +317,22 @@ jv_int_t jv_pool_reset(jv_pool_t *pool) {
     return JV_ERROR;
   }
 
-  if (first->next == NULL) {
-    return JV_OK;
-  }
+  lump = pool->lump;
+  lump->size = pool->max;
+  lump->used = 0;
+  lump->next = lump->prev = lump;
 
   for (block = first->next; block != NULL; block = tmp) {
     tmp = block->next;
     free(block);
   }
 
-  lump = pool->lump;
-  lump->size = pool->max;
-  lump->used = 0;
-  lump->next = lump;
-  lump->prev = lump;
-
+  block = first;
   block->size = pool->max;
   block->next = NULL;
 
-  pool->first = block;
-  pool->last = block;
+  pool->first = pool->last = block;
   pool->pos = lump;
-
-  pool->lump = lump;
 
   return JV_OK;
 }
@@ -355,8 +348,6 @@ void jv_pool_dump(jv_pool_t *pool, FILE *fd) {
 
   fprintf(fd, "\n┌- - - - - - - - - - - - jv memory pool monitoring - - - - - - - - - - - - -┐\n");
   fprintf(fd, "|- - - - - - - - - - - - jv_pool_lump - - - - - - - - - - - - - - - -  - - -|\n");
-
-  /* fprintf(fd, "\n┌- - - - - - - - - - - - jv_pool_lump - - - - - - - - - - - - - - - -  - - -┐\n");*/
 
   lump = pool->lump;
   do {
