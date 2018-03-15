@@ -330,8 +330,43 @@ void test8(void) {
   jv_pool_destroy(pool);
 }
 
-int main(int argc, char *argv[]) {
+void test9(void) {
+  jv_pool_t *pool;
 
+  pool = jv_pool_create(JV_ALLOC_MIN_SIZE);
+
+  jv_pool_alloc(pool, 4432);
+  jv_pool_alloc(pool, 412);
+  jv_pool_alloc(pool, 3);
+  jv_pool_alloc(pool, 12);
+
+  jv_pool_dump(pool, stdout);
+
+  assert(jv_pool_reset(pool) == JV_OK);
+
+  jv_pool_dump(pool, stdout);
+  jv_pool_destroy(pool);
+}
+
+void test10(void) {
+  jv_pool_t *pool;
+
+  pool = jv_pool_create(JV_ALLOC_MAX_SIZE);
+
+  jv_pool_dump(pool, stdout);
+
+  jv_pool_alloc(pool, 4432);
+  jv_pool_alloc(pool, 412);
+  jv_pool_alloc(pool, 3);
+  jv_pool_alloc(pool, 12);
+
+  /*assert(jv_pool_reset(pool) == JV_OK);*/
+
+  jv_pool_dump(pool, stdout);
+  jv_pool_destroy(pool);
+}
+
+int main(int argc, char *argv[]) {
   test1();
   test2();
   test3();
@@ -340,6 +375,7 @@ int main(int argc, char *argv[]) {
   test6();
   test7();
   test8();
-
+  test9();
+  test10();
   return 0;
 }
