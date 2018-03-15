@@ -8,22 +8,19 @@ LIBS=
 
 LINKS=
 TARGET=jv_pool_main
+TEST=jv_pool_test
 
-src=$(wildcard *.c)
-dir=$(notdir $(src))
-C_OBJS=$(patsubst %.c, %.o,$(dir))
-#C_OBJS=$(dir:%.c=%.o)
-
-compile:$(TARGET)
+all:	
+	$(CC) $(CFLAGS) $(INCLUDES) -c jv_pool.c -o jv_pool.o
+	$(CC) $(CFLAGS) $(INCLUDES) -c jv_pool_main.c -o jv_pool_main.o
+	$(CC) $(CFLAGS) $(INCLUDES) -c jv_pool_test.c -o jv_pool_test.o
 	
-$(C_OBJS):%.o:%.c
-	$(CC) $(CFLAGS) $(INCLUDES) -o $*.o -c $*.c
-	
-$(TARGET):$(C_OBJS)
-	$(CC) -o $(TARGET) $^ $(LIBS) $(LINKS) 
+	$(CC) -o $(TARGET) jv_pool_main.o jv_pool.o $(LINKS) $(LIBS)
+	$(CC) -o $(TEST) jv_pool_test.o jv_pool.o $(LINKS) $(LIBS)
 
 	@echo 
 	@echo Project has been successfully compiled.
 	@echo
+
 clean:
-	rm -rf $(TARGET) *.depend *.layout bin obj *.o *.stackdump *.log *~
+	rm -rf $(TARGET) $(TEST) *.depend *.layout bin obj *.o *.stackdump *.log *~
