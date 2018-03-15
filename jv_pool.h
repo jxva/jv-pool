@@ -41,9 +41,6 @@ struct jv_block_s {
   size_t size;
 };
 
-/*
- jv_lump_t 采用双向循环链表主要是为了可以高效回收分配的内存,其实，jv_lump_t可以仅为单向循环链表，但是在回收分配的内存时需要先遍历整个内存池
- */
 struct jv_lump_s {
   jv_lump_t *prev;
   jv_lump_t *next;
@@ -51,7 +48,7 @@ struct jv_lump_s {
   jv_uint_t used : 1;
 };
 
-struct jv_pool_s { /* 20 or 40 */
+struct jv_pool_s { 
   size_t max;      /* block max size */
   jv_block_t *first;
   jv_block_t *last;

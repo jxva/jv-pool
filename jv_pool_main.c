@@ -167,12 +167,15 @@ void test2(void) {
   for (i = 0; i < 10000; i++) {
     jv_uint_t j = rand() % 1001;
     jv_uint_t k = rand() % 10001;
-    jv_lump_t *lump = jv_pool_alloc(pool, j * k);
+    size_t size = j * k;
+    jv_lump_t *lump = jv_pool_alloc(pool, size);
     /* printf("allocate memory size: %lu\n", j); */
     if (lump == NULL) {
-      printf("allocate memory error: %u\n", i);
+      printf("allocate memory error: %lu\n", (jv_uint_t) size);
       break;
     }
+    printf("allocate memory size: %lu, %lu\n", jv_align(size, JV_WORD_SIZE / 8), (jv_uint_t) jv_pool_sizeof(pool, lump));
+    assert(jv_pool_sizeof(pool, lump) == jv_align(size, JV_WORD_SIZE / 8));
     assert(jv_pool_free(pool, lump) == JV_OK);
   }
   /* jv_pool_dump(pool,stdout); */
@@ -270,7 +273,15 @@ void test6(void) {
 
   jv_pool_dump(pool, stdout);
 
-  printf("a: %p, b: %p, c: %p, d: %p\n", a, b, c, d);
+  jv_pool_recycle(pool, a);
+
+  jv_pool_recycle(pool, b);
+
+  jv_pool_recycle(pool, c);
+
+  jv_pool_recycle(pool, d);
+
+  jv_pool_dump(pool, stdout);
 
   jv_pool_destroy(pool);
 }
@@ -303,7 +314,7 @@ void test8(void) {
 
   jv_pool_dump(pool, stdout);
 
-  assert(jv_pool_reset(pool)==JV_OK);
+  assert(jv_pool_reset(pool) == JV_OK);
 
   jv_pool_alloc(pool, 4432);
   jv_pool_alloc(pool, 412);
@@ -325,7 +336,8 @@ int main(int argc, char *argv[]) {
   test5();
   test6();
   test7();
-*/
-  test8();
+  test8(); */
+
+  test2();
   return 0;
 }
