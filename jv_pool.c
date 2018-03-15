@@ -334,6 +334,16 @@ jv_int_t jv_pool_reset(jv_pool_t *pool) {
   return JV_OK;
 }
 
+void jv_pool_destroy(jv_pool_t *pool) {
+  jv_block_t *block, *tmp = NULL;
+
+  for (block = pool->first; block != NULL; block = tmp) {
+    tmp = block->next;
+    free(block);
+  }
+  pool = NULL;
+}
+
 void jv_pool_dump(jv_pool_t *pool, FILE *fd) {
   jv_lump_t *lump;
   jv_block_t *block;
@@ -371,14 +381,4 @@ void jv_pool_dump(jv_pool_t *pool, FILE *fd) {
     fprintf(fd, buf, "|");
   }
   fprintf(fd, "└- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  - - ┘\n\n");
-}
-
-void jv_pool_destroy(jv_pool_t *pool) {
-  jv_block_t *block, *tmp = NULL;
-
-  for (block = pool->first; block != NULL; block = tmp) {
-    tmp = block->next;
-    free(block);
-  }
-  pool = NULL;
 }
