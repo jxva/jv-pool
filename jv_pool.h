@@ -5,9 +5,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define JV_PLATFORM_WORD (sizeof(unsigned long))
-#define JV_CACHELINE_SIZE (JV_PLATFORM_WORD << 3)
-
+#ifdef __x86_64__
+#define JV_WORD_SIZE 64
+#else
+#define JV_WORD_SIZE 32
+#endif
 
 #define JV_OK 0
 #define JV_ERROR -1
@@ -30,9 +32,9 @@ typedef struct jv_lump_s jv_lump_t;
 
 #define jv_align(d, a) (((d) + (a - 1)) & ~(a - 1))
 
-#define JV_BLOCK_DEFAULT_SIZE 0x4000 /* 0x4000 = 1024 * 16 = 16384 */
+#define JV_ALLOC_DEFAULT_SIZE 0x4000 /* 0x4000  = 1024 * 16 = 16384 */
 
-#define JV_ALLOC_MAX_SIZE 0x7fffffff /* 32bit: 2147483647 64bit: 9223372036854775807 */
+#define JV_ALLOC_MAX_SIZE ((2UL << (JV_WORD_SIZE - 1)) - 1) /* 32bit: (2<<31)-1 = 0x7fffffff=2147483647 64bit: 9223372036854775807 */
 
 struct jv_block_s {
   jv_block_t *next;
@@ -40,18 +42,16 @@ struct jv_block_s {
 };
 
 /*
- jv_lump_t 采用双向循环链表主要是为了可以高效回收分配的内存
- 其实，jv_lump_t可以仅为单向循环链表，但是在回收分配的内存时
- 需要先遍历整个内存池
+ jv_lump_t 采用双向循环链表主要是为了可以高效回收分配的内存,其实，jv_lump_t可以仅为单向循环链表，但是在回收分配的内存时需要先遍历整个内存池
  */
 struct jv_lump_s {
   jv_lump_t *prev;
   jv_lump_t *next;
-  unsigned size : 31; /* max value: (2<<31)-1 = 2147483647 */
-  unsigned used : 1;
+  jv_uint_t size : JV_WORD_SIZE - 1; /* 32bit max value: (2<<31)-1 = 2147483647, 64bit max value:(2<<63)-1 */
+  jv_uint_t used : 1;
 };
 
-struct jv_pool_s { /* 20 */
+struct jv_pool_s { /* 20 or 40 */
   size_t max;      /* block max size */
   jv_block_t *first;
   jv_block_t *last;

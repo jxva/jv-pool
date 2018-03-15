@@ -14,11 +14,11 @@ jv_pool_t *jv_pool_create(size_t size) {
   jv_lump_t *lump;
   u_char *cp;
 
-  if (size < JV_BLOCK_DEFAULT_SIZE) {
-    size = JV_BLOCK_DEFAULT_SIZE;
+  if (size < JV_ALLOC_DEFAULT_SIZE) {
+    size = JV_ALLOC_DEFAULT_SIZE;
   }
 
-  size = jv_align(size, JV_PLATFORM_WORD);
+  size = jv_align(size, JV_WORD_SIZE/8);
 
   cp = malloc(size + sizeof(jv_block_t) + sizeof(jv_pool_t) + sizeof(jv_lump_t));
   if (cp == NULL) {
@@ -51,14 +51,14 @@ jv_pool_t *jv_pool_create(size_t size) {
 
 static void *jv_pool_slb(jv_pool_t *pool, size_t size) {
   if (size > JV_ALLOC_MAX_SIZE) {
-    printf("memory allocate failed, max memory size: %d, allocate size: %lu\n", JV_ALLOC_MAX_SIZE, (jv_uint_t)size);
+    printf("memory allocate failed, max memory size: %lu, allocate size: %lu\n", (jv_uint_t) JV_ALLOC_MAX_SIZE, (jv_uint_t) size);
     return NULL;
   }
 
   if (size <= pool->max) { /* 从 lump->size <= pool->max 中查找 */
     jv_lump_t *p;
     /* jv_uint_t i; */
-    size = jv_align(size, JV_PLATFORM_WORD);
+    size = jv_align(size, JV_WORD_SIZE/8);
 
     /*for (p = pool->pos, i = 0; i == 0 || p != pool->pos; i++, p = p->next) { */
     p = pool->pos;
@@ -233,7 +233,7 @@ jv_int_t jv_pool_free(jv_pool_t *pool, void *ptr) {
 
   idle = (jv_lump_t *) ((u_char *) ptr - sizeof(jv_lump_t));
 
-  if (idle->used != 1 && idle->size % JV_PLATFORM_WORD != 0) {
+  if (idle->used != 1 && idle->size % (JV_WORD_SIZE/8) != 0) {
     printf("free's pointer is not in the memory pool\n");
     return JV_ERROR;
   }
@@ -293,7 +293,7 @@ void jv_pool_dump(jv_pool_t *pool, FILE *fd) {
   lump = pool->lump;
   do {
     char buf[12];
-    n = fprintf(fd, "| lump address: %lu, lump->size: %u, lump->used: %u", (unsigned long) lump, lump->size, lump->used);
+    n = fprintf(fd, "| lump address: %lu, lump->size: %lu, lump->used: %lu", (unsigned long) lump, (jv_uint_t) lump->size, (jv_uint_t) lump->used);
     sprintf(buf, "%%%d.1s\n", 77 - n);
     fprintf(fd, buf, "|");
     lump = lump->next;
