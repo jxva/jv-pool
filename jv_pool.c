@@ -308,7 +308,39 @@ jv_int_t jv_pool_recycle(jv_pool_t *pool, void *ptr) {
 }
 
 jv_int_t jv_pool_reset(jv_pool_t *pool) {
-  /* TODO */
+  jv_block_t *first, *block, *tmp = NULL;
+  jv_lump_t *lump;
+
+  first = pool->first;
+
+  if (pool == NULL) {
+    return JV_ERROR;
+  }
+
+  if (first->next == NULL) {
+    return JV_OK;
+  }
+
+  for (block = first->next; block != NULL; block = tmp) {
+    tmp = block->next;
+    free(block);
+  }
+
+  lump = pool->lump;
+  lump->size = pool->max;
+  lump->used = 0;
+  lump->next = lump;
+  lump->prev = lump;
+
+  block->size = pool->max;
+  block->next = NULL;
+
+  pool->first = block;
+  pool->last = block;
+  pool->pos = lump;
+
+  pool->lump = lump;
+
   return JV_OK;
 }
 
