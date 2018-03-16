@@ -6,9 +6,9 @@
 *.depend
 *.stackdump
 *.exe
+
 jv_pool_main
 
-.vscode/
 
 bin/
 obj/

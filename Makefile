@@ -7,7 +7,9 @@ INCLUDES=-I.
 LIBS=
 
 LINKS=
+
 TARGET=jv_pool_main
+
 TEST=jv_pool_test
 
 all:	
@@ -23,4 +25,4 @@ all:
 	@echo
 
 clean:
-	rm -rf $(TARGET) $(TEST) *.depend *.layout bin obj *.exe *.o *.stackdump *.log *~
+	rm -rf $(TARGET) $(TEST) *.depend *.layout bin obj *.o *.stackdump *.exe *.log *~
