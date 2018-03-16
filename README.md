@@ -1,77 +1,66 @@
 # High performance and security memory allocation using ANSI C
 
-
+A modern, high performance, efficient, security memory pool allocation using ANSI C
 
 ## Features
 
-- No dynamic memory allocation
 - No dependence
-- ~100 LOC
-- Supports for separating key and value using '=' or ':'
-- Supports comments using '#' or ';'
-- Supports value is a string
-- Uses callbacks
+- ~400 LOC
+- Use efficient algorithms to automatically allocate best fit memory
+- Supports memory alloc, recycle, realloc, free, exist, sizeof (get memory size)...
+- Support memory pool create, reset,dump, destroy...
 
 ## Getting Started
 
-### test.properties
-
-```ini
-# fdsafsa
-hello=world  ;fdsas
-ni = "hao        #fds  fsa"
-; fdsafsa
-china= 中国
-chinese =中国人
-
-url = http://129fdsa.com:8080/fdsa?fdas=fdasf&fdsa=vcsa&reqwrw#fdsa
-
-# fdsafafdsafsa
-
-fdsa : 32q4
-
-#.ddddddddddddddddddd
-
-;fdsafas
-
-fdsaf : fdsa
-
-
-fdsafsa = "this is 
-a
-string"
-
-342=fd"saf"sa
-
-#fdsfa
-;fdsafsafsa
-```
-
-### jv_properties_main.c
+### jv_pool_main.c
 
 ```c
-#include <jv_properties.h>
-
-static jv_int_t callback(jv_string_t *key, jv_string_t *value);
-
-static jv_int_t callback( jv_string_t *key, jv_string_t *value) {
-  printf("[%s:%lu] = [%s:%lu]\n", key->data, (jv_uint_t)key->len, value->data, (jv_uint_t)value->len);
-  return JV_OK;
-}
+#include <assert.h>
+#include <jv_pool.h>
 
 int main(int argc, char *argv[]) {
-  FILE *fp;
-  char *file = "test.properties";
+  jv_pool_t *pool;
+  jv_block_t *block;
+  jv_lump_t *lump;
+  jv_uint_t i;
+  u_char *a;
 
-  fp = fopen(file, "r");
-  if (!fp) {
-    fprintf(stderr, "Error opening %s\n", file);
-    return JV_ERROR;
+  pool = jv_pool_create(JV_ALLOC_DEFAULT_SIZE);
+
+  a = jv_pool_alloc(pool, 32);
+
+  jv_memset(a, 'a', 32);
+
+  a[31] = '\0';
+
+  printf("a:%s, len:%lu\n", a, jv_pool_sizeof(pool, a));
+
+  a = jv_pool_realloc(pool, a, 64);
+
+  assert(jv_pool_sizeof(pool, a) == 64);
+
+  jv_memset(a, '1', 64);
+
+  a[63] = '\0';
+
+  printf("a:%s, len:%lu\n", a, jv_pool_sizeof(pool, a));
+
+  jv_pool_dump(pool, stdout);
+
+  jv_pool_each_block(pool, block, i) {
+    printf("block address: %p, block->size: %lu\n", (void *) block, (jv_uint_t) block->size);
   }
 
-  jv_properties_load(fp, callback);
+  jv_pool_each_lump(pool, lump, i) {
+    printf("lump address: %p, lump->size: %u, lump->used: %u\n", (void *) lump, lump->size, lump->used);
+  }
 
-  fclose(fp);
+  assert(jv_pool_recycle(pool, a) == JV_OK);
+
+  assert(jv_pool_free(pool, a) == JV_OK);
+
+  jv_pool_destroy(pool);
+
   return 0;
 }
 ```
@@ -82,23 +71,57 @@ int main(int argc, char *argv[]) {
 
 ## Run
 
-    $ ./jv_perperties_main
+    $ ./jv_pool_main
 
-## Out Print
+## Api References
 
-```ini
-[hello:5] = [world;fdsas:11]
-[ni:2] = ["hao        #fds  fsa":22]
-[china:5] = [中国:6]
-[chinese:7] = [中国人:9]
-[url:3] = [http://129fdsa.com:8080/fdsa?fdas=fdasf&fdsa=vcsa&reqwrw#fdsa:61]
-[fdsa:4] = [32q4:4]
-[fdsaf:5] = [fdsa:4]
-[fdsafsa:7] = ["this is
-a
-string":19]
-[342:3] = [fd"saf"sa:9]
-```
+### jv_pool_t *jv_pool_create(size_t size);
+
+  `TODO`
+
+### void *jv_pool_alloc(jv_pool_t *pool, size_t size);
+
+  `TODO`
+
+### void *jv_pool_realloc(jv_pool_t *pool, void *ptr, size_t size);
+
+  `TODO`
+
+### jv_int_t jv_pool_free(jv_pool_t *pool, void *ptr);
+
+  `TODO`
+
+### size_t jv_pool_sizeof(jv_pool_t *pool, void *ptr);
+
+  `TODO`
+
+### jv_int_t jv_pool_exist(jv_pool_t *pool, void *ptr);
+
+  `TODO`
+
+### jv_int_t jv_pool_recycle(jv_pool_t *pool, void *ptr);
+
+  `TODO`
+
+### jv_int_t jv_pool_reset(jv_pool_t *pool);
+
+  `TODO`
+
+### jv_pool_each_lump(jv_pool_t *pool, jv_lump_t *lump, jv_uint_t i);
+
+  `TODO`
+
+### jv_pool_each_block(jv_pool_t *pool,jv_block_t *block, jv_uint_t i);
+
+  `TODO`
+
+### void jv_pool_destroy(jv_pool_t *pool);
+
+  `TODO`
+
+### void jv_pool_dump(jv_pool_t *pool, FILE *fd);
+
+  `TODO`
 
 ## License
 
