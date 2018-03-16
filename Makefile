@@ -23,4 +23,4 @@ all:
 	@echo
 
 clean:
-	rm -rf $(TARGET) $(TEST) *.depend *.layout bin obj *.o *.stackdump *.log *~
+	rm -rf $(TARGET) $(TEST) *.depend *.layout bin obj *.exe *.o *.stackdump *.log *~

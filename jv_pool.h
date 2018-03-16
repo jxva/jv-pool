@@ -15,6 +15,7 @@
 #define JV_ERROR -1
 
 #define jv_memzero(buf, n) (void *) memset(buf, 0, n)
+#define jv_memset(buf, c, n) (void *) memset(buf, c, n)
 
 #ifndef intptr_t
 #define intptr_t long
