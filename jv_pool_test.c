@@ -1,7 +1,6 @@
 #include <assert.h>
 #include <jv_pool.h>
 #include <time.h>
-
 void test1(void) {
   jv_pool_t *pool;
   void *a, *b, *c, *d, *e, *f, *g, *h, *i, *j;
@@ -212,10 +211,9 @@ void test4(void) {
 
   srand(time(NULL));
   for (i = 0; i < 50000; i++) {
-    jv_uint_t j = rand() % 1001;
-    s = malloc(j);
-    assert(jv_pool_free(pool, s) == JV_ERROR);
-    free(s);
+    jv_uint_t j = rand() % 1001 + 1;
+    assert((s = jv_pool_alloc(pool, j)) != NULL);
+    assert(jv_pool_free(pool, s) == JV_OK);
   }
   jv_pool_destroy(pool);
 }
@@ -290,15 +288,16 @@ void test6(void) {
 
 void test7(void) {
   jv_pool_t *pool;
+  jv_lump_t *lump;
   unsigned i;
 
   pool = jv_pool_create(1024 * 16);
 
   srand(time(NULL));
   for (i = 0; i < 1000; i++) {
-    jv_uint_t j = rand() % 1001;
-    jv_uint_t k = rand() % 1024 * 18;
-    jv_lump_t *lump = jv_pool_alloc(pool, j * k);
+    jv_uint_t j = rand() % 1001 + 1;
+    jv_uint_t k = rand() % 1024 * 18 + 1;
+    assert((lump = jv_pool_alloc(pool, j * k)) != NULL);
     /* printf("allocate memory size: %lu\n", j); */
     if (lump == NULL) {
       printf("allocate memory error: %u\n", i);
@@ -351,7 +350,7 @@ void test9(void) {
 void test10(void) {
   jv_pool_t *pool;
 
-  pool = jv_pool_create(JV_ALLOC_MAX_SIZE);
+  pool = jv_pool_create(JV_ALLOC_MAX_SIZE * 0.5);
 
   jv_pool_dump(pool, stdout);
 
