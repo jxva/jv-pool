@@ -29,16 +29,19 @@ typedef uintptr_t jv_uint_t;
 
 typedef unsigned char u_char;
 
-#define JV_ALLOC_MIN_SIZE 0x4000 /* 0x4000 = 1024 * 16 = 16484 */
+#define JV_POOL_MIN_SIZE 0x4000 /* 0x4000 = 1024 * 16 = 16484 */
 
-#define JV_ALLOC_DEFAULT_SIZE 0x200000 /* 0x200000  = 1024 * 1024 * 2 = 2097152 */
+#define JV_POOL_DEFAULT_SIZE 0x200000 /* 0x200000  = 1024 * 1024 * 2 = 2097152 */
 
 /**
  *  (2<<31) = 2147483648
  *  (2<<63) = 9223372036854775808s
  **/
-#define JV_ALLOC_MAX_SIZE 1073741568 /*  (2<<30) - 256 = 1073741824 - 256 = 1073741568 */
+#define JV_POOL_MAX_SIZE 1073741568 /*  (2<<30) - 256 = 1073741824 - 256 = 1073741568 */
 
+#define JV_POOL_QUICK_MODE 0
+
+#define JV_POOL_SAFE_MODE 1
 
 typedef struct jv_pool_s jv_pool_t;
 typedef struct jv_block_s jv_block_t;
@@ -64,10 +67,10 @@ struct jv_pool_s {
   size_t size;     /* setting default block size */
   uint32_t lump_count;
   unsigned block_count : 31;
-  unsigned safe_mode : 1; /* safe mode: disable is 0, other is 1, default: 1 */
+  unsigned mode : 1; /* quick mode is 0, safe mode is 1, default is 1 */
 };
 
-jv_pool_t *jv_pool_create(size_t size, unsigned safe_mode);
+jv_pool_t *jv_pool_create(size_t size, unsigned mode);
 
 void *jv_pool_alloc(jv_pool_t *pool, size_t size);
 
