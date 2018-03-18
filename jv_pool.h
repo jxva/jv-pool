@@ -22,26 +22,27 @@
 #define uintptr_t unsigned long
 #endif
 
+#define jv_align(d, a) (((d) + (a - 1)) & ~(a - 1))
+
 typedef intptr_t jv_int_t;
 typedef uintptr_t jv_uint_t;
 
 typedef unsigned char u_char;
 
-#define JV_ALLOC_MIN_SIZE 256
+#define JV_ALLOC_MIN_SIZE 0x4000 /* 0x4000 = 1024 * 16 = 16484 */
 
-#define JV_ALLOC_DEFAULT_SIZE 0x4000 /* 0x4000  = 1024 * 16 = 16384 */
+#define JV_ALLOC_DEFAULT_SIZE 0x200000 /* 0x200000  = 1024 * 1024 * 2 = 2097152 */
 
 /**
  *  (2<<31) = 2147483648
  *  (2<<63) = 9223372036854775808s
  **/
-#define JV_ALLOC_MAX_SIZE (2147483648 - JV_ALLOC_MIN_SIZE)
+#define JV_ALLOC_MAX_SIZE 1073741568 /*  (2<<30) - 256 = 1073741824 - 256 = 1073741568 */
+
 
 typedef struct jv_pool_s jv_pool_t;
 typedef struct jv_block_s jv_block_t;
 typedef struct jv_lump_s jv_lump_t;
-
-#define jv_align(d, a) (((d) + (a - 1)) & ~(a - 1))
 
 struct jv_block_s {
   jv_block_t *next;
@@ -56,14 +57,17 @@ struct jv_lump_s {
 };
 
 struct jv_pool_s {
-  size_t max; /* block max size */
   jv_block_t *first;
   jv_block_t *last;
   jv_lump_t *lump;
-  jv_lump_t *pos; /* current idle lump's position */
+  jv_lump_t *idle; /* current idle lump's position */
+  size_t size;     /* setting default block size */
+  uint32_t lump_count;
+  unsigned block_count : 31;
+  unsigned safe_mode : 1; /* safe mode: disable is 0, other is 1, default: 1 */
 };
 
-jv_pool_t *jv_pool_create(size_t size);
+jv_pool_t *jv_pool_create(size_t size, unsigned safe_mode);
 
 void *jv_pool_alloc(jv_pool_t *pool, size_t size);
 

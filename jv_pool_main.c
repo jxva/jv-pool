@@ -8,7 +8,7 @@ int main(int argc, char *argv[]) {
   jv_uint_t i;
   u_char *a;
 
-  pool = jv_pool_create(JV_ALLOC_DEFAULT_SIZE);
+  pool = jv_pool_create(JV_ALLOC_DEFAULT_SIZE, 1);
 
   a = jv_pool_alloc(pool, 32);
 

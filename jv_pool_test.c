@@ -9,13 +9,13 @@ void test1(void) {
   jv_lump_t *lump;
   u_char *s;
 
-  pool = jv_pool_create(128);
+  pool = jv_pool_create(128, 1);
 
   base = (jv_uint_t) pool - sizeof(jv_block_t);
 
   printf("base: %lu, lump size: %lu\n\n", (jv_uint_t) base, (jv_uint_t) sizeof(jv_lump_t));
   printf("pool: %lu, pos: %lu, block: %lu, block->size: %lu, block->next: %lu, lump: %lu, lump->size: %lu, lump->next: %lu\n",
-         (jv_uint_t) pool - base, (jv_uint_t) pool->pos - base, (jv_uint_t) pool->first - base, (jv_uint_t) pool->first->size,
+         (jv_uint_t) pool - base, (jv_uint_t) pool->idle - base, (jv_uint_t) pool->first - base, (jv_uint_t) pool->first->size,
          (jv_uint_t) pool->first->next, (jv_uint_t) pool->lump - base, (jv_uint_t) pool->lump->size, (jv_uint_t) pool->lump->next - base);
 
   /* jv_pool_dump(pool, stdout); */
@@ -27,10 +27,10 @@ void test1(void) {
   a = jv_pool_alloc(pool, 40);
 
   printf("pool: %lu, pos: %lu, block: %lu, block->size: %lu, block->next: %lu, lump: %lu, lump->size: %lu, lump->next: %lu\n",
-         (jv_uint_t) pool - base, (jv_uint_t) pool->pos - base, (jv_uint_t) pool->first - base, (jv_uint_t) pool->first->size,
+         (jv_uint_t) pool - base, (jv_uint_t) pool->idle - base, (jv_uint_t) pool->first - base, (jv_uint_t) pool->first->size,
          (jv_uint_t) pool->first->next, (jv_uint_t) pool->lump - base, (jv_uint_t) pool->lump->size, (jv_uint_t) pool->lump->next - base);
 
-  printf("a address: %lu, pos: %lu\n", (jv_uint_t) a - base, (jv_uint_t) pool->pos - base);
+  printf("a address: %lu, pos: %lu\n", (jv_uint_t) a - base, (jv_uint_t) pool->idle - base);
 
   assert(jv_pool_sizeof(pool, a) == 40);
   assert((u_char *) a == (u_char *) pool->lump->next + sizeof(jv_lump_t));
@@ -38,10 +38,10 @@ void test1(void) {
   b = jv_pool_alloc(pool, 56);
 
   printf("pool: %lu, pos: %lu, block: %lu, block->size: %lu, block->next: %lu, lump: %lu, lump->size: %lu, lump->next: %lu\n",
-         (jv_uint_t) pool - base, (jv_uint_t) pool->pos - base, (jv_uint_t) pool->first - base, (jv_uint_t) pool->first->size,
+         (jv_uint_t) pool - base, (jv_uint_t) pool->idle - base, (jv_uint_t) pool->first - base, (jv_uint_t) pool->first->size,
          (jv_uint_t) pool->first->next, (jv_uint_t) pool->lump - base, (jv_uint_t) pool->lump->size, (jv_uint_t) pool->lump->next - base);
 
-  printf("b address: %lu, pos: %lu\n", (jv_uint_t) b - base, (jv_uint_t) pool->pos - base);
+  printf("b address: %lu, pos: %lu\n", (jv_uint_t) b - base, (jv_uint_t) pool->idle - base);
 
   assert(jv_pool_sizeof(pool, b) == 56);
   assert((u_char *) b == (u_char *) pool->lump->next + sizeof(jv_lump_t));
@@ -49,10 +49,10 @@ void test1(void) {
   c = jv_pool_alloc(pool, 32);
 
   printf("pool: %lu, pos: %lu, block: %lu, block->size: %lu, block->next: %lu, lump: %lu, lump->size: %lu, lump->next: %lu\n",
-         (jv_uint_t) pool - base, (jv_uint_t) pool->pos - base, (jv_uint_t) pool->first - base, (jv_uint_t) pool->first->size,
+         (jv_uint_t) pool - base, (jv_uint_t) pool->idle - base, (jv_uint_t) pool->first - base, (jv_uint_t) pool->first->size,
          (jv_uint_t) pool->first->next, (jv_uint_t) pool->lump - base, (jv_uint_t) pool->lump->size, (jv_uint_t) pool->lump->next - base);
 
-  printf("c address: %lu, pos: %lu\n", (jv_uint_t) c - base, (jv_uint_t) pool->pos - base);
+  printf("c address: %lu, pos: %lu\n", (jv_uint_t) c - base, (jv_uint_t) pool->idle - base);
 
   assert(jv_pool_sizeof(pool, c) == 32);
   assert((u_char *) c == (u_char *) pool->lump->next + sizeof(jv_lump_t));
@@ -60,10 +60,10 @@ void test1(void) {
   d = jv_pool_alloc(pool, 8);
 
   printf("pool: %lu, pos: %lu, block: %lu, block->size: %lu, block->next: %lu, lump: %lu, lump->size: %lu, lump->next: %lu\n",
-         (jv_uint_t) pool - base, (jv_uint_t) pool->pos - base, (jv_uint_t) pool->first - base, (jv_uint_t) pool->first->size,
+         (jv_uint_t) pool - base, (jv_uint_t) pool->idle - base, (jv_uint_t) pool->first - base, (jv_uint_t) pool->first->size,
          (jv_uint_t) pool->first->next, (jv_uint_t) pool->lump - base, (jv_uint_t) pool->lump->size, (jv_uint_t) pool->lump->next - base);
 
-  printf("d address: %lu, pos: %lu\n", (jv_uint_t) d - base, (jv_uint_t) pool->pos - base);
+  printf("d address: %lu, pos: %lu\n", (jv_uint_t) d - base, (jv_uint_t) pool->idle - base);
 
   assert(jv_pool_sizeof(pool, d) == 8);
   assert((u_char *) d == (u_char *) pool->lump->next + sizeof(jv_lump_t));
@@ -71,10 +71,10 @@ void test1(void) {
   e = jv_pool_alloc(pool, 4);
 
   printf("pool: %lu, pos: %lu, block: %lu, block->size: %lu, block->next: %lu, lump: %lu, lump->size: %lu, lump->next: %lu\n",
-         (jv_uint_t) pool - base, (jv_uint_t) pool->pos - base, (jv_uint_t) pool->first - base, (jv_uint_t) pool->first->size,
+         (jv_uint_t) pool - base, (jv_uint_t) pool->idle - base, (jv_uint_t) pool->first - base, (jv_uint_t) pool->first->size,
          (jv_uint_t) pool->first->next, (jv_uint_t) pool->lump - base, (jv_uint_t) pool->lump->size, (jv_uint_t) pool->lump->next - base);
 
-  printf("e address: %lu, pos: %lu\n", (jv_uint_t) e - base, (jv_uint_t) pool->pos - base);
+  printf("e address: %lu, pos: %lu\n", (jv_uint_t) e - base, (jv_uint_t) pool->idle - base);
 
   assert(jv_pool_sizeof(pool, e) == jv_align(4, JV_WORD_SIZE / 8));
   assert((u_char *) e == (u_char *) pool->lump->next + sizeof(jv_lump_t));
@@ -82,10 +82,10 @@ void test1(void) {
   f = jv_pool_alloc(pool, 24);
 
   printf("pool: %lu, pos: %lu, block: %lu, block->size: %lu, block->next: %lu, lump: %lu, lump->size: %lu, lump->next: %lu\n",
-         (jv_uint_t) pool - base, (jv_uint_t) pool->pos - base, (jv_uint_t) pool->first - base, (jv_uint_t) pool->first->size,
+         (jv_uint_t) pool - base, (jv_uint_t) pool->idle - base, (jv_uint_t) pool->first - base, (jv_uint_t) pool->first->size,
          (jv_uint_t) pool->first->next, (jv_uint_t) pool->lump - base, (jv_uint_t) pool->lump->size, (jv_uint_t) pool->lump->next - base);
 
-  printf("f address: %lu, pos: %lu\n", (jv_uint_t) f - base, (jv_uint_t) pool->pos - base);
+  printf("f address: %lu, pos: %lu\n", (jv_uint_t) f - base, (jv_uint_t) pool->idle - base);
 
   assert(jv_pool_sizeof(pool, f) == 24);
   assert((u_char *) f == (u_char *) pool->lump->next + sizeof(jv_lump_t));
@@ -93,10 +93,10 @@ void test1(void) {
   g = jv_pool_alloc(pool, 104);
 
   printf("pool: %lu, pos: %lu, block: %lu, block->size: %lu, block->next: %lu, lump: %lu, lump->size: %lu, lump->next: %lu\n",
-         (jv_uint_t) pool - base, (jv_uint_t) pool->pos - base, (jv_uint_t) pool->first - base, (jv_uint_t) pool->first->size,
+         (jv_uint_t) pool - base, (jv_uint_t) pool->idle - base, (jv_uint_t) pool->first - base, (jv_uint_t) pool->first->size,
          (jv_uint_t) pool->first->next, (jv_uint_t) pool->lump - base, (jv_uint_t) pool->lump->size, (jv_uint_t) pool->lump->next - base);
 
-  printf("g address: %lu, pos: %lu\n", (jv_uint_t) g - base, (jv_uint_t) pool->pos - base);
+  printf("g address: %lu, pos: %lu\n", (jv_uint_t) g - base, (jv_uint_t) pool->idle - base);
 
   assert(jv_pool_sizeof(pool, g) == 104);
   assert((u_char *) g == (u_char *) pool->lump->next + sizeof(jv_lump_t));
@@ -153,7 +153,7 @@ void test1(void) {
   lump = (jv_lump_t *) ((u_char *) pool->first + sizeof(jv_pool_t) + sizeof(jv_block_t));
 
   assert(lump->used == 0);
-  assert(lump->size == pool->max);
+  assert(lump->size == pool->size);
 
   jv_pool_destroy(pool);
 }
@@ -162,7 +162,7 @@ void test2(void) {
   jv_pool_t *pool;
   unsigned i;
 
-  pool = jv_pool_create(1024 * 16);
+  pool = jv_pool_create(1024 * 16, 1);
 
   srand(time(NULL));
   for (i = 0; i < 10000; i++) {
@@ -187,7 +187,7 @@ void test3(void) {
   jv_pool_t *pool;
   unsigned i;
 
-  pool = jv_pool_create(1024 * 16);
+  pool = jv_pool_create(1024 * 16, 1);
 
   srand(time(NULL));
   for (i = 0; i < 10000; i++) {
@@ -207,7 +207,7 @@ void test3(void) {
 void test4(void) {
   jv_pool_t *pool;
   unsigned i, *s;
-  pool = jv_pool_create(1024 * 16);
+  pool = jv_pool_create(1024 * 16, 1);
 
   srand(time(NULL));
   for (i = 0; i < 50000; i++) {
@@ -221,7 +221,7 @@ void test4(void) {
 void test5(void) {
   jv_pool_t *pool;
 
-  pool = jv_pool_create(1024 * 16);
+  pool = jv_pool_create(1024 * 16, 1);
 
   jv_pool_alloc(pool, 432141);
   jv_pool_alloc(pool, 10000);
@@ -246,11 +246,11 @@ void test6(void) {
   jv_pool_t *pool;
   char *a, *b, *c, *d;
 
-  pool = jv_pool_create(128);
+  pool = jv_pool_create(128, 1);
 
   /* printf("sizeof(jv_pool_t): %lu\n",sizeof(jv_pool_t)); */
   printf("pool: %lu, pos: %lu, block: %lu, block->size: %lu, block->next: %lu, lump: %lu, lump->size: %lu, lump->next: %lu\n", (jv_uint_t) pool,
-         (jv_uint_t) pool->pos, (jv_uint_t) pool->first, (jv_uint_t) pool->first->size, (jv_uint_t) pool->first->next, (jv_uint_t) pool->lump,
+         (jv_uint_t) pool->idle, (jv_uint_t) pool->first, (jv_uint_t) pool->first->size, (jv_uint_t) pool->first->next, (jv_uint_t) pool->lump,
          (jv_uint_t) pool->lump->size, (jv_uint_t) pool->lump->next);
 
   jv_pool_dump(pool, stdout);
@@ -291,7 +291,7 @@ void test7(void) {
   jv_lump_t *lump;
   unsigned i;
 
-  pool = jv_pool_create(1024 * 16);
+  pool = jv_pool_create(1024 * 16, 1);
 
   srand(time(NULL));
   for (i = 0; i < 1000; i++) {
@@ -311,7 +311,7 @@ void test7(void) {
 void test8(void) {
   jv_pool_t *pool;
 
-  pool = jv_pool_create(1024 * 16);
+  pool = jv_pool_create(1024 * 16, 1);
 
   jv_pool_dump(pool, stdout);
 
@@ -332,7 +332,7 @@ void test8(void) {
 void test9(void) {
   jv_pool_t *pool;
 
-  pool = jv_pool_create(JV_ALLOC_MIN_SIZE);
+  pool = jv_pool_create(JV_ALLOC_MIN_SIZE, 1);
 
   jv_pool_alloc(pool, 4432);
   jv_pool_alloc(pool, 412);
@@ -350,7 +350,7 @@ void test9(void) {
 void test10(void) {
   jv_pool_t *pool;
 
-  pool = jv_pool_create(JV_ALLOC_MAX_SIZE * 0.5);
+  pool = jv_pool_create(JV_ALLOC_MAX_SIZE, 1);
 
   jv_pool_dump(pool, stdout);
 
